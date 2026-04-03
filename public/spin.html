@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>🎰 Game Roulette</title>
+<link rel="preconnect" href="https://lk.antilopay.com" crossorigin>
+<link rel="dns-prefetch" href="//lk.antilopay.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07080d;--card-bg:rgba(14,17,26,.92);--card-border:rgba(255,255,255,.06);
+  --text:#f0f0f5;--text-secondary:#8b8fa3;--text-muted:#5a5e72;
+  --radius:14px;--radius-lg:20px;
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;
+  overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:16px;
+  -webkit-font-smoothing:antialiased}
+
+/* ═══════════════════════════════════════════════════════════════
+   TIER THEMES — 5 уровней
+   ═══════════════════════════════════════════════════════════════ */
+body{--accent:#3b82f6;--accent-rgb:59,130,246;--accent-glow:rgba(59,130,246,.3);
+  --tier-name:'STANDART';--tier-level:'1';--tier-gradient:linear-gradient(135deg,#3b82f6,#2563eb)}
+
+body.tier-starter{--accent:#3b82f6;--accent-rgb:59,130,246;--accent-glow:rgba(59,130,246,.3);
+  --tier-name:'STANDART';--tier-level:'1';--tier-gradient:linear-gradient(135deg,#3b82f6,#2563eb)}
+body.tier-bronze{--accent:#8b5cf6;--accent-rgb:139,92,246;--accent-glow:rgba(139,92,246,.3);
+  --tier-name:'PREMIUM';--tier-level:'2';--tier-gradient:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+body.tier-silver{--accent:#ef4444;--accent-rgb:239,68,68;--accent-glow:rgba(239,68,68,.3);
+  --tier-name:'LEGENDARY';--tier-level:'3';--tier-gradient:linear-gradient(135deg,#ef4444,#dc2626)}
+body.tier-gold{--accent:#f59e0b;--accent-rgb:245,158,11;--accent-glow:rgba(245,158,11,.3);
+  --tier-name:'GOLD';--tier-level:'4';--tier-gradient:linear-gradient(135deg,#f59e0b,#d97706)}
+body.tier-diamond{--accent:#06b6d4;--accent-rgb:6,182,212;--accent-glow:rgba(6,182,212,.3);
+  --tier-name:'DELUXE';--tier-level:'5';--tier-gradient:linear-gradient(135deg,#06b6d4,#0891b2)}
+
+/* ═══════════════════════════════════════════════════════════════
+   BACKGROUND EFFECTS
+   ═══════════════════════════════════════════════════════════════ */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 15%,rgba(var(--accent-rgb),.10),transparent),
+    radial-gradient(ellipse 600px 600px at 85% 85%,rgba(var(--accent-rgb),.06),transparent),
+    radial-gradient(ellipse 400px 400px at 50% 40%,rgba(var(--accent-rgb),.04),transparent)}
+
+/* ═══════ BOOST THEME — микс основного + золотой ═══════ */
+body.boosted-theme{--boost-gold:rgba(245,158,11,.08)}
+body.boosted-theme::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 500px 400px at 25% 25%,rgba(245,158,11,.10),transparent),
+    radial-gradient(ellipse 600px 500px at 75% 75%,rgba(var(--accent-rgb),.08),transparent),
+    radial-gradient(ellipse 300px 300px at 50% 50%,rgba(234,179,8,.06),transparent);
+  animation:boostShimmer 3s ease-in-out infinite alternate}
+@keyframes boostShimmer{0%{opacity:.5}100%{opacity:1}}
+
+body.boosted-theme .card{border-color:rgba(245,158,11,.15);
+  box-shadow:0 0 60px rgba(245,158,11,.08),0 0 30px rgba(var(--accent-rgb),.06),0 20px 60px rgba(0,0,0,.5)}
+body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59e0b,var(--accent),#f59e0b,transparent)}
+
+/* ═══════════════════════════════════════════════════════════════
+   PARTICLES
+   ═══════════════════════════════════════════════════════════════ */
+.particles{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.particle{position:absolute;border-radius:50%;animation:pFloat linear infinite;will-change:transform}
+@keyframes pFloat{
+  0%{transform:translateY(110vh) scale(0);opacity:0}
+  8%{opacity:.5;transform:translateY(95vh) scale(1)}
+  85%{opacity:.3}
+  100%{transform:translateY(-5vh) scale(.3);opacity:0}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD
+   ═══════════════════════════════════════════════════════════════ */
+.container{position:relative;z-index:1;width:100%;max-width:560px}
+.card{background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);backdrop-filter:blur(24px);overflow:hidden;
+  box-shadow:0 0 50px rgba(var(--accent-rgb),.06),0 25px 80px rgba(0,0,0,.5);
+  transition:all .4s cubic-bezier(.4,0,.2,1)}
+.tier-strip{height:3px;background:var(--tier-gradient)}
+
+/* Tier label floating */
+.tier-label{position:absolute;top:16px;right:16px;font-size:10px;font-weight:800;
+  letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;opacity:.6;
+  display:flex;align-items:center;gap:4px;z-index:5}
+.tier-label .tier-num{background:var(--accent);color:var(--bg);width:18px;height:18px;
+  border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESS
+   ═══════════════════════════════════════════════════════════════ */
+.progress-bar{display:flex;justify-content:center;gap:6px;padding:20px 20px 0}
+.p-dot{width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,.08);transition:all .4s}
+.p-dot.active{background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+.p-dot.done{background:rgba(var(--accent-rgb),.35)}
+
+/* ═══════════════════════════════════════════════════════════════
+   STEPS
+   ═══════════════════════════════════════════════════════════════ */
+.step{display:none;padding:32px 28px 36px;animation:stepFade .35s ease}
+.step.active{display:block}
+@keyframes stepFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step-icon{font-size:44px;text-align:center;margin-bottom:14px}
+.step-title{font-size:24px;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:-.5px}
+.step-sub{font-size:14px;color:var(--text-secondary);text-align:center;margin-bottom:28px;line-height:1.5}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════════════ */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  padding:14px 24px;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);font-family:var(--font);
+  position:relative;overflow:hidden}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn-accent{background:var(--tier-gradient);color:#fff}
+.btn-accent:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px var(--accent-glow)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text-secondary);border:1px solid rgba(255,255,255,.08)}
+.btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.08);color:var(--text)}
+.btn-sm{padding:10px 18px;font-size:13px}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE CARDS
+   ═══════════════════════════════════════════════════════════════ */
+.mode-options{display:flex;flex-direction:column;gap:12px}
+.mode-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:22px;cursor:pointer;transition:all .25s;text-align:left;
+  position:relative;overflow:hidden}
+.mode-card:hover{border-color:rgba(var(--accent-rgb),.3);background:rgba(var(--accent-rgb),.04);
+  transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--tier-gradient);opacity:0;transition:opacity .25s}
+.mode-card:hover::before{opacity:1}
+.mc-icon{font-size:32px;margin-bottom:10px}
+.mc-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.mc-desc{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.mc-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  background:rgba(var(--accent-rgb),.12);color:var(--accent);padding:3px 10px;border-radius:6px;margin-top:10px}
+
+/* Первый экран: центрируем заголовки и усиливаем читаемость текста */
+#step-mode .mode-card{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+#step-mode .mc-icon,#step-mode .mc-title,#step-mode .mc-desc{display:block;width:100%;}
+#step-mode .mc-title{text-align:center;}
+#step-mode .mc-desc{
+  display:block;
+  margin-top:8px;
+  color:#d5d9eb;
+  text-align:center;
+  text-shadow:0 1px 10px rgba(0,0,0,.55);
+}
+#step-mode .step-sub{
+  color:#e1e5f5;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:10px 14px;
+  text-shadow:0 1px 8px rgba(0,0,0,.45);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STEAM
+   ═══════════════════════════════════════════════════════════════ */
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.5px}
+.text-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);color:var(--text);
+  font-size:14px;outline:none;transition:all .2s;font-family:var(--font)}
+.text-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
+.text-input::placeholder{color:var(--text-muted)}
+.steam-help-btn{margin-top:8px}
+.steam-help{
+  margin:12px 0 16px;
+  padding:14px;
+  border-radius:var(--radius);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  color:#d9ddef;
+  font-size:13px;
+  line-height:1.6;
+}
+.steam-help h4{font-size:14px;font-weight:800;margin-bottom:8px;color:#fff}
+.steam-help p{margin:8px 0}
+.steam-help ul{margin:8px 0 0 18px}
+.steam-help li{margin-bottom:6px}
+.steam-help .steam-link-example{font-family:'SF Mono',Consolas,monospace;font-size:12px;color:#cfd5ef;word-break:break-all}
+.steam-guidance{
+  margin:12px 0;
+  padding:14px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+}
+.steam-guidance.bad{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.08)}
+.steam-guidance.good{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.08)}
+.steam-guidance-title{font-size:14px;font-weight:800;margin-bottom:8px}
+.steam-guidance-text{font-size:13px;line-height:1.6;color:#e3e7f7}
+.steam-guidance-list{margin:8px 0 0 18px}
+.steam-guidance-list li{margin-bottom:6px}
+
+.steam-card{display:flex;align-items:center;gap:14px;padding:14px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);margin:16px 0}
+.steam-card img{width:56px;height:56px;border-radius:12px;flex-shrink:0}
+.sc-name{font-weight:700;font-size:16px}
+.sc-id{font-size:12px;color:var(--text-muted);margin-top:2px}
+.sc-games{font-size:12px;color:#4ade80;margin-top:3px;font-weight:600}
+
+.steam-warn{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);
+  border-radius:var(--radius);padding:14px;font-size:13px;color:#fca5a5;margin:12px 0;line-height:1.5}
+.steam-ok{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);
+  border-radius:var(--radius);padding:14px;font-size:13px;color:#86efac;margin:12px 0}
+
+/* ═══════════════════════════════════════════════════════════════
+   REGION — с флагами
+   ═══════════════════════════════════════════════════════════════ */
+.region-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:400px){.region-grid{grid-template-columns:1fr}}
+.region-btn{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:14px 12px;cursor:pointer;font-size:14px;font-weight:600;
+  color:var(--text);transition:all .2s;text-align:left;display:flex;align-items:center;gap:10px;
+  font-family:var(--font)}
+.region-btn:hover{border-color:rgba(var(--accent-rgb),.3);background:rgba(var(--accent-rgb),.04)}
+.region-btn.selected{border-color:var(--accent);background:rgba(var(--accent-rgb),.08);
+  box-shadow:0 0 0 1px var(--accent)}
+.region-flag{font-size:22px;line-height:1}
+.region-name{font-size:14px}
+.region-flag{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;
+}
+.region-flag-img{
+  width:22px;
+  height:22px;
+  display:block;
+  object-fit:contain;
+  border-radius:50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOST
+   ═══════════════════════════════════════════════════════════════ */
+.boost-options{display:flex;flex-direction:column;gap:12px}
+.boost-card{border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:22px;
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.boost-card:hover{transform:translateY(-2px)}
+.boost-card.by{background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(var(--accent-rgb),.04));
+  border-color:rgba(245,158,11,.15)}
+.boost-card.by:hover{border-color:rgba(245,158,11,.4);box-shadow:0 8px 30px rgba(245,158,11,.1)}
+.boost-card.by::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(45deg,transparent 40%,rgba(245,158,11,.06) 50%,transparent 60%);
+  animation:shimmer 3s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+.boost-card.bn{background:rgba(255,255,255,.01)}
+.boost-card.bn:hover{border-color:rgba(255,255,255,.12)}
+.boost-card h3{font-size:18px;font-weight:800;margin-bottom:5px}
+.boost-card p{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.boost-price{display:inline-block;margin-top:12px;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(var(--accent-rgb),.1));
+  color:#fbbf24;padding:6px 14px;border-radius:8px;font-size:15px;font-weight:800;
+  border:1px solid rgba(245,158,11,.2)}
+.boost-tag{position:absolute;top:14px;right:14px;font-size:9px;font-weight:800;
+  background:rgba(245,158,11,.15);color:#fbbf24;padding:3px 8px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:.5px}
+.boost-note{text-align:center;font-size:11px;color:var(--text-muted);margin-top:12px}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANALYSIS
+   ═══════════════════════════════════════════════════════════════ */
+.analysis{text-align:center;padding:30px 0}
+.a-spinner{width:72px;height:72px;border:3px solid rgba(var(--accent-rgb),.1);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.a-msg{font-size:15px;color:var(--text-secondary);transition:opacity .3s;min-height:24px;font-weight:500}
+.a-bar-wrap{width:85%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin:24px auto 0;overflow:hidden}
+.a-bar{height:100%;background:var(--tier-gradient);border-radius:2px;transition:width .6s ease;width:0}
+/* Фейковые логи бота */
+.a-logs{margin-top:20px;text-align:left;max-height:120px;overflow:hidden}
+.a-log{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Consolas,monospace;
+  padding:2px 0;opacity:0;animation:logIn .3s ease forwards}
+@keyframes logIn{to{opacity:.7}}
+.a-log .log-ok{color:#4ade80}
+.a-log .log-info{color:var(--accent)}
+
+/* ═══════════════════════════════════════════════════════════════
+   ROULETTE — увеличенная
+   ═══════════════════════════════════════════════════════════════ */
+.roulette-section{padding:20px 0 30px}
+.r-title{text-align:center;font-size:20px;font-weight:800;margin-bottom:16px;letter-spacing:-.3px}
+.r-wrapper{position:relative;margin:0;overflow:hidden}
+.r-viewport{overflow:hidden;padding:16px 0;position:relative}
+/* Pointer */
+.r-pointer{position:absolute;top:0;left:50%;transform:translateX(-50%);width:3px;height:100%;
+  background:var(--accent);z-index:5;opacity:.7;box-shadow:0 0 12px var(--accent-glow)}
+.r-pointer::before{content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%);
+  border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid var(--accent)}
+.r-pointer::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+  border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:10px solid var(--accent)}
+/* Gradient edges */
+.r-viewport::before,.r-viewport::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:3;pointer-events:none}
+.r-viewport::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.r-viewport::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
+
+.r-strip{display:flex;gap:10px;padding:0 10px;will-change:transform}
+.r-strip.animating{transition:transform 6s cubic-bezier(.06,.82,.15,1)}
+
+/* Roulette items — с картинками */
+.r-item{flex-shrink:0;width:clamp(150px,26vw,230px);height:clamp(92px,15vw,138px);border-radius:var(--radius);overflow:hidden;
+  position:relative;border:2px solid rgba(255,255,255,.06);transition:all .4s;
+  background:rgba(255,255,255,.03)}
+.r-item img{width:100%;height:100%;object-fit:cover;opacity:.7;transition:opacity .3s}
+.r-item .r-item-label{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;
+  background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:12px;font-weight:700;
+  color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.r-item.winner{border-color:var(--accent);box-shadow:0 0 30px var(--accent-glow),0 0 60px rgba(var(--accent-rgb),.15);
+  transform:scale(1.08)}
+.r-item.winner img{opacity:1}
+.r-item.surprise{display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.08),rgba(var(--accent-rgb),.02))}
+.r-item.surprise .surprise-icon{font-size:36px;margin-bottom:6px}
+.r-item.surprise .surprise-text{font-size:13px;font-weight:700;color:var(--accent)}
+
+/* Desktop vs Mobile sizes */
+@media(min-width:1200px){
+  .container{max-width:760px}
+  .r-item{width:260px;height:156px}
+}
+@media(max-width:540px){
+  .container{max-width:100%}
+  .card{width:100%}
+  .step{padding:24px 16px 28px}
+  .r-wrapper{margin:0 -8px}
+  .r-item{width:42vw;height:25vw;max-width:182px;max-height:110px;min-width:132px;min-height:80px}
+  .r-item .r-item-label{font-size:10px;padding:6px 8px}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WAITING
+   ═══════════════════════════════════════════════════════════════ */
+.waiting{text-align:center;padding:30px 0}
+.w-spinner{width:56px;height:56px;border:3px solid rgba(var(--accent-rgb),.1);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 1.2s linear infinite;margin:0 auto 24px}
+.w-text{font-size:15px;color:var(--text-secondary);margin-bottom:10px}
+.w-timer{font-size:24px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.w-note{font-size:12px;color:var(--text-muted);margin-top:20px;padding:12px;
+  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:var(--radius)}
+.old-key-banner{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.12);
+  border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px;text-align:left}
+.old-key-banner b{color:#fbbf24}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESULT
+   ═══════════════════════════════════════════════════════════════ */
+.result{text-align:center}
+.result-img{width:100%;max-width:320px;border-radius:var(--radius);margin:0 auto 20px;display:block;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.06)}
+.result-name{font-size:26px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.result-tier{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;
+  font-weight:700;margin-bottom:24px}
+
+.key-box{background:rgba(255,255,255,.03);border:1px solid rgba(var(--accent-rgb),.15);
+  border-radius:var(--radius);padding:20px;margin:20px 0;position:relative;text-align:left}
+.key-box .kl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:8px;font-weight:700}
+.key-box .kv{font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:20px;font-weight:700;
+  color:#fff;word-break:break-all;letter-spacing:2px}
+.key-box .kh{color:var(--text-muted);font-style:italic;font-size:14px}
+.key-box .kcopy{position:absolute;top:14px;right:14px;background:rgba(var(--accent-rgb),.1);
+  border:1px solid rgba(var(--accent-rgb),.2);color:var(--accent);padding:7px 14px;border-radius:8px;
+  font-size:12px;cursor:pointer;font-weight:700;transition:all .15s;font-family:var(--font)}
+.key-box .kcopy:hover{background:rgba(var(--accent-rgb),.2)}
+.key-box .kcopy.copied{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.2);color:#4ade80}
+
+/* Respin options */
+.respin-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.04)}
+.respin-title{font-size:16px;font-weight:700;color:var(--text-secondary);margin-bottom:14px}
+.respin-opts{display:flex;gap:10px}
+@media(max-width:480px){.respin-opts{flex-direction:column}}
+.respin-card{flex:1;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .25s;text-align:center}
+.respin-card:hover{border-color:rgba(var(--accent-rgb),.3);transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.respin-card.rc-premium{border-color:rgba(168,85,247,.15);background:rgba(168,85,247,.03)}
+.respin-card.rc-premium:hover{border-color:rgba(168,85,247,.35);box-shadow:0 8px 20px rgba(168,85,247,.1)}
+.respin-card h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.respin-card p{font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.4}
+.respin-card .rp{font-weight:800;font-size:17px;color:var(--accent)}
+.respin-card.rc-premium .rp{color:#c084fc}
+.respin-warn{font-size:11px;color:var(--text-muted);margin-top:12px;text-align:center}
+
+/* ═══════════════════════════════════════════════════════════════
+   ERROR
+   ═══════════════════════════════════════════════════════════════ */
+.error{text-align:center;padding:40px 0}
+.error .e-icon{font-size:52px;margin-bottom:16px;opacity:.6}
+.error .e-text{font-size:18px;color:#fca5a5;font-weight:700;margin-bottom:8px}
+.error .e-sub{font-size:13px;color:var(--text-muted)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFETTI & OVERLAYS
+   ═══════════════════════════════════════════════════════════════ */
+#confetti{position:fixed;inset:0;z-index:100;pointer-events:none;display:none}
+.loading-ov{position:absolute;inset:0;background:rgba(7,8,13,.85);z-index:20;
+  display:none;align-items:center;justify-content:center;border-radius:var(--radius-lg)}
+.loading-ov.visible{display:flex}
+.loading-ov .lo-spin{width:32px;height:32px;border:3px solid rgba(var(--accent-rgb),.1);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;padding:12px 24px;border-radius:var(--radius);
+  font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);font-family:var(--font)}
+#toast.visible{opacity:1}
+#toast.error{background:#ef4444}
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="container">
+  <div class="card" id="card">
+    <div class="tier-strip"></div>
+    <div class="tier-label" id="tier-label"><span class="tier-num" id="tier-num">1</span> <span id="tier-name-display">STANDART</span></div>
+    <div class="progress-bar" id="progress"></div>
+    <div class="loading-ov" id="loading-ov"><div class="lo-spin"></div></div>
+
+    <!-- MODE -->
+    <div class="step" id="step-mode">
+      <div class="step-icon">🎮</div>
+      <h2 class="step-title">Выберите режим</h2>
+      <p class="step-sub">Хотите получить игру, которой у вас ещё нет?</p>
+      <div class="mode-options">
+        <div class="mode-card" onclick="selectMode(true)">
+          <span class="mc-icon">🎯</span>
+          <span class="mc-title">Исключить дубликаты</span>
+          <span class="mc-desc">Привяжите Steam — наш бот проанализирует библиотеку и подберёт уникальную игру</span>
+          <span class="mc-tag">Рекомендуем</span>
+        </div>
+        <div class="mode-card" onclick="selectMode(false)">
+          <span class="mc-icon">🎲</span>
+          <span class="mc-title">Быстрая игра</span>
+          <span class="mc-desc">Мгновенный подбор без проверки — возможны совпадения</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEAM -->
+    <div class="step" id="step-steam">
+      <div class="step-icon">🔗</div>
+      <h2 class="step-title">Привяжите Steam</h2>
+      <p class="step-sub">Вставьте ссылку на профиль для анализа библиотеки</p>
+      <div class="input-group">
+        <label>Ссылка на профиль</label>
+        <input type="text" class="text-input" id="steam-url" placeholder="https://steamcommunity.com/id/..." autocomplete="off">
+        <button class="btn btn-ghost btn-sm steam-help-btn" type="button" onclick="toggleSteamHelp()">🔗 Как найти ссылку на профиль Steam</button>
+      </div>
+      <div id="steam-help" style="display:none"></div>
+      <div id="steam-result"></div>
+      <button class="btn btn-accent" id="steam-btn" onclick="checkSteam()">🔍 Проверить профиль</button>
+      <button class="btn btn-ghost" style="margin-top:10px" onclick="goBackToMode()">← Назад</button>
+    </div>
+
+    <!-- REGION -->
+    <div class="step" id="step-region">
+      <div class="step-icon">🌍</div>
+      <h2 class="step-title">Ваш регион</h2>
+      <p class="step-sub">Для подбора совместимого ключа</p>
+      <div class="region-grid" id="region-grid"></div>
+    </div>
+
+    <!-- BOOST -->
+    <div class="step" id="step-boost">
+      <div class="step-icon">🚀</div>
+      <h2 class="step-title">Повысить шанс?</h2>
+      <p class="step-sub">Бот подберёт игру из расширенного каталога топ-тайтлов</p>
+      <div class="boost-options">
+        <div class="boost-card by" onclick="selectBoost(true)">
+          <span class="boost-tag">Популярный выбор</span>
+          <h3>🔥 С повышением</h3>
+          <p>Увеличенный шанс получить AAA-хит из каталога вашего уровня</p>
+          <span class="boost-price" id="boost-price">+0₽</span>
+        </div>
+        <div class="boost-card bn" onclick="selectBoost(false)">
+          <h3>🎲 Стандартный</h3>
+          <p>Обычные шансы — бот подберёт игру без приоритета</p>
+        </div>
+      </div>
+      <p class="boost-note">⚡ Повышение действует на 1 прокрутку</p>
+    </div>
+
+    <!-- ANALYSIS -->
+    <div class="step" id="step-analysis">
+      <div class="analysis">
+        <div class="a-spinner"></div>
+        <div class="a-msg" id="a-msg">Инициализация…</div>
+        <div class="a-bar-wrap"><div class="a-bar" id="a-bar"></div></div>
+        <div class="a-logs" id="a-logs"></div>
+      </div>
+    </div>
+
+    <!-- ROULETTE -->
+    <div class="step" id="step-roulette">
+      <div class="roulette-section">
+        <div class="r-title" id="r-title">🎰 Рулетка запущена!</div>
+        <div class="r-wrapper">
+          <div class="r-viewport" id="r-viewport">
+            <div class="r-pointer"></div>
+            <div class="r-strip" id="r-strip"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WAITING -->
+    <div class="step" id="step-waiting">
+      <div id="old-key-area"></div>
+      <div class="waiting">
+        <div class="w-spinner"></div>
+        <h2 class="step-title" style="margin-bottom:10px">Бот подбирает игру</h2>
+        <p class="w-text">Анализируем ваш профиль и подбираем идеальную игру</p>
+        <p class="w-timer" id="w-timer">0:00</p>
+        <div class="w-note">💡 Не закрывайте страницу — результат появится автоматически</div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="step" id="step-result">
+      <div id="result-old-key"></div>
+      <div class="result" id="result-content"></div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="step" id="step-error">
+      <div class="error">
+        <div class="e-icon">❌</div>
+        <div class="e-text" id="e-text">Ошибка</div>
+        <div class="e-sub" id="e-sub">Попробуйте позже или обратитесь в поддержку</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+<div id="toast"></div>
+
+<!-- Roulette sound (generated via Web Audio) -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CONFIG
+   ═══════════════════════════════════════════════════════════════ */
+const API_BASE=(()=>{const p=window.location.pathname;if(p.startsWith('/games'))return'/games';return'';})();
+
+const TIER_MAP={
+  starter:{name:'STANDART',level:1},bronze:{name:'PREMIUM',level:2},
+  silver:{name:'LEGENDARY',level:3},gold:{name:'GOLD',level:4},diamond:{name:'DELUXE',level:5}
+};
+
+const TIER_PRICES={
+  starter:{boost:1,respin:1,premium:1},bronze:{boost:135,respin:135,premium:270},
+  silver:{boost:210,respin:210,premium:420},gold:{boost:300,respin:300,premium:600},
+  diamond:{boost:450,respin:450,premium:900}
+};
+
+/* Регионы с флагами — расширенный список */
+const REGIONS=[
+  {code:'ru',name:'Россия',flag:'🇷🇺',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1f7-1f1fa.svg'},
+  {code:'by',name:'Беларусь',flag:'🇧🇾',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1e7-1f1fe.svg'},
+  {code:'kz',name:'Казахстан',flag:'🇰🇿',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1f0-1f1ff.svg'},
+  {code:'ua',name:'Украина',flag:'🇺🇦',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1fa-1f1e6.svg'},
+  {code:'tr',name:'Турция',flag:'🇹🇷',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1f9-1f1f7.svg'},
+  {code:'cn',name:'Китай',flag:'🇨🇳',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1e8-1f1f3.svg'},
+  {code:'us',name:'США',flag:'🇺🇸',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1fa-1f1f8.svg'},
+  {code:'eu',name:'Европа',flag:'🇪🇺',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1ea-1f1fa.svg'},
+  {code:'other',name:'Другой',flag:'🌐',icon:''}
+];
+
+/* Игры для визуала рулетки — с Steam App ID для картинок */
+const ROULETTE_POOL={
+  starter:[
+    {n:'Hollow Knight',id:'367520'},{n:'Celeste',id:'504230'},{n:'Stardew Valley',id:'413150'},
+    {n:'Terraria',id:'105600'},{n:'Cuphead',id:'268910'},{n:'Hades',id:'1145360'},
+    {n:'Dead Cells',id:'588650'},{n:'Undertale',id:'391540'},{n:'Slay the Spire',id:'646570'},
+    {n:'Factorio',id:'427520'},{n:'Inside',id:'304430'},{n:'Limbo',id:'48000'}
+  ],
+  bronze:[
+    {n:'Portal 2',id:'620'},{n:'Subnautica',id:'264710'},{n:'Deep Rock Galactic',id:'548430'},
+    {n:'Valheim',id:'892970'},{n:'Risk of Rain 2',id:'632360'},{n:'Satisfactory',id:'526870'},
+    {n:'Phasmophobia',id:'739630'},{n:'Outer Wilds',id:'753640'},{n:'The Forest',id:'242760'},
+    {n:'Raft',id:'648800'},{n:'Lethal Company',id:'1966720'},{n:'V Rising',id:'1604030'}
+  ],
+  silver:[
+    {n:'The Witcher 3',id:'292030'},{n:'Dark Souls III',id:'374320'},{n:'Sekiro',id:'814380'},
+    {n:'God of War',id:'1593500'},{n:'Horizon Zero Dawn',id:'1151640'},{n:'It Takes Two',id:'1426210'},
+    {n:'RE Village',id:'1196590'},{n:'Death Stranding',id:'1190460'},{n:'Dying Light 2',id:'534380'},
+    {n:'NieR:Automata',id:'524220'},{n:'Disco Elysium',id:'632470'},{n:'Control',id:'870780'}
+  ],
+  gold:[
+    {n:'Cyberpunk 2077',id:'1091500'},{n:'RDR 2',id:'1174180'},{n:'Baldur\'s Gate 3',id:'1086940'},
+    {n:'Elden Ring',id:'1245620'},{n:'Hogwarts Legacy',id:'990080'},{n:'Spider-Man',id:'1817070'},
+    {n:'Diablo IV',id:'2344520'},{n:'Starfield',id:'1716740'},{n:'Alan Wake 2',id:'2369390'},
+    {n:'Forza Horizon 5',id:'1551360'},{n:'Lies of P',id:'1627720'},{n:'Dead Space',id:'1693980'}
+  ],
+  diamond:[
+    {n:'Elden Ring DLC',id:'2778580'},{n:'Cyberpunk Ultimate',id:'1091500'},{n:'BG3 Deluxe',id:'1086940'},
+    {n:'RDR2 Ultimate',id:'1174180'},{n:'Ghost of Tsushima',id:'2215430'},{n:'The Last of Us',id:'1888930'},
+    {n:'Returnal',id:'1649240'},{n:'FF VII Remake',id:'1462040'},{n:'Spider-Man: MM',id:'1817190'},
+    {n:'Uncharted Legacy',id:'1659420'},{n:'Starfield Premium',id:'1716740'},{n:'Hogwarts Deluxe',id:'990080'}
+  ]
+};
+
+const ANALYSIS_MSGS_FULL=[
+  {t:'[INIT] Запуск анализатора v3.7...',d:800},
+  {t:'[STEAM] Подключение к Steam API...',d:1000},
+  {t:'[STEAM] Профиль загружен ✓',d:600,ok:true},
+  {t:'[LIB] Сканирование библиотеки...',d:1200},
+  {t:'[LIB] Найдено {games} игр в аккаунте',d:800,ok:true},
+  {t:'[AI] Анализ предпочтений по жанрам...',d:1500},
+  {t:'[AI] Определены топ-жанры: Action, RPG, Indie',d:700,ok:true},
+  {t:'[MATCH] Подбор из каталога уровня {tier}...',d:1200},
+  {t:'[MATCH] Исключение {owned} дубликатов...',d:900},
+  {t:'[READY] Игра подобрана! Запуск рулетки...',d:600,ok:true}
+];
+const ANALYSIS_MSGS_SIMPLE=[
+  {t:'[INIT] Запуск системы подбора...',d:800},
+  {t:'[SCAN] Анализ каталога уровня {tier}...',d:1200},
+  {t:'[AI] Рандомизация пула игр...',d:1000},
+  {t:'[MATCH] Подбор завершён!',d:600,ok:true},
+  {t:'[READY] Запуск рулетки...',d:500,ok:true}
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+let code='',linkData=null,excludeDuplicates=false;
+let uSteamUrl='',uSteamId='',uSteamName='',uSteamAvatar='',ownedAppIds=[];
+let uCountry='',wantBoost=false,currentStep='';
+let steamVerified=false;
+let paymentRedirectInProgress=false;
+let pollInterval=null,pollStart=null;
+const POLL_MS=15000,POLL_MAX=3600000;
+let audioCtx=null;
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',init);
+
+async function init(){
+  createParticles();
+  buildRegionGrid();
+  initSteamInputWatcher();
+  code=extractCode();
+  if(!code){showError('Ссылка не найдена');return;}
+  const params=new URLSearchParams(window.location.search);
+  showLoading(true);
+  try{
+    const resp=await fetch(API_BASE+'/api/link/'+code);
+    const data=await resp.json();
+    if(!data.valid){showError(data.error||'Ссылка недействительна');return;}
+    linkData=data;
+    applyTier(data.tier);
+    updateBoostPrice();
+    if(data.steamId){uSteamId=data.steamId;uSteamName=data.steamName||'';uSteamAvatar=data.steamAvatar||'';uSteamUrl=data.steamProfileUrl||'';excludeDuplicates=data.excludeDuplicates||false;}
+    if(data.country)uCountry=data.country;
+
+    /* Payment returns */
+    if(params.get('boost_success')==='1'){
+      linkData.boosted=true;linkData.boostPaid=true;wantBoost=true;
+      document.body.classList.add('boosted-theme');cleanUrl();
+      if(!data.spinCompleted){const s=loadFlow();if(s)restoreFlow(s);showLoading(false);goAnalysis();return;}
+    }
+    if(params.get('boost_failed')==='1'){cleanUrl();showToast('Оплата не прошла',true);}
+    if(params.get('respin_success')==='1'){
+      cleanUrl();
+      if(data.keyAssigned&&!data.respinRequested){
+        try{await fetch(API_BASE+'/api/respin-success-fallback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,type:data.respinType||'normal'})});
+          const r2=await fetch(API_BASE+'/api/link/'+code);linkData=await r2.json();
+        }catch(e){}
+      }
+    }
+    if(params.get('respin_failed')==='1'){cleanUrl();showToast('Оплата не прошла',true);}
+
+    if(linkData.boosted||linkData.boostPaid)document.body.classList.add('boosted-theme');
+
+    if(linkData.spinCompleted&&linkData.keyAssigned){showLoading(false);renderResult();showStep('step-result');}
+    else if(linkData.spinCompleted&&!linkData.keyAssigned){showLoading(false);showStep('step-waiting');startPolling();}
+    else{showLoading(false);if(linkData.respinCount>0)goAnalysis();else showStep('step-mode');}
+  }catch(e){console.error(e);showError('Ошибка загрузки');}
+}
+
+function extractCode(){const m=window.location.pathname.match(/\/g\/([^\/\?]+)/);return m?m[1]:'';}
+
+/* ═══════════════════════════════════════════════════════════════
+   TIER & THEME
+   ═══════════════════════════════════════════════════════════════ */
+function applyTier(tier){
+  document.body.className=document.body.className.replace(/tier-\w+/g,'');
+  document.body.classList.add('tier-'+(tier||'starter'));
+  const t=TIER_MAP[tier]||TIER_MAP.starter;
+  document.getElementById('tier-num').textContent=t.level;
+  document.getElementById('tier-name-display').textContent=t.name;
+}
+
+function updateBoostPrice(){
+  const p=TIER_PRICES[linkData?.tier]?.boost||0;
+  document.getElementById('boost-price').textContent='+'+p+'₽';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STEPS
+   ═══════════════════════════════════════════════════════════════ */
+function showStep(id,hist=true){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);if(el)el.classList.add('active');
+  currentStep=id;updateProgress();showLoading(false);
+  if(hist)history.pushState({step:id},'','');
+}
+window.addEventListener('popstate',e=>{if(e.state?.step)showStep(e.state.step,false);});
+window.addEventListener('pageshow',()=>{
+  paymentRedirectInProgress=false;
+  showLoading(false);
+});
+
+function updateProgress(){
+  const c=document.getElementById('progress');
+  if(['step-error','step-waiting','step-result'].includes(currentStep)){c.innerHTML='';return;}
+  const vs=excludeDuplicates
+    ?['step-mode','step-steam','step-region','step-boost','step-analysis','step-roulette']
+    :['step-mode','step-region','step-boost','step-analysis','step-roulette'];
+  const ci=vs.indexOf(currentStep);
+  c.innerHTML=vs.map((_,i)=>'<div class="p-dot'+(i<ci?' done':'')+(i===ci?' active':'')+'"></div>').join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE
+   ═══════════════════════════════════════════════════════════════ */
+function selectMode(exclude){
+  excludeDuplicates=exclude;
+  if(exclude){
+    steamVerified=false;
+    setSteamButtonToCheck();
+    showStep('step-steam');
+    setTimeout(()=>document.getElementById('steam-url')?.focus(),200);
+  }
+  else{uSteamId='';uSteamName='';uSteamAvatar='';uSteamUrl='';ownedAppIds=[];showStep('step-region');}
+}
+
+function goBackToMode(){
+  showStep('step-mode');
+}
+
+function setSteamButtonToCheck(){
+  const btn=document.getElementById('steam-btn');
+  if(!btn) return;
+  btn.textContent='🔍 Проверить профиль';
+  btn.onclick=checkSteam;
+}
+
+function setSteamButtonToContinue(){
+  const btn=document.getElementById('steam-btn');
+  if(!btn) return;
+  btn.textContent='➡️ Продолжить';
+  btn.onclick=continueAfterSteam;
+}
+
+function initSteamInputWatcher(){
+  const input=document.getElementById('steam-url');
+  if(!input) return;
+  input.addEventListener('input',()=>{
+    steamVerified=false;
+    setSteamButtonToCheck();
+  });
+}
+
+function continueAfterSteam(){
+  if(!steamVerified){
+    showToast('Сначала проверьте профиль Steam', true);
+    return;
+  }
+  showStep('step-region');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STEAM
+   ═══════════════════════════════════════════════════════════════ */
+async function checkSteam(){
+  const input=document.getElementById('steam-url'),btn=document.getElementById('steam-btn'),res=document.getElementById('steam-result');
+  const url=input.value.trim();
+  if(!url){res.innerHTML='<div class="steam-warn">Вставьте ссылку на профиль Steam</div>';return;}
+  btn.disabled=true;btn.textContent='⏳ Проверяем...';res.innerHTML='';
+  try{
+    const resp=await fetch(API_BASE+'/api/check-steam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({steamUrl:url})});
+    const data=await resp.json();
+    if(!data.ok){
+      steamVerified=false;
+      let h='';
+      if(data.profileClosed){
+        h+='<div class="steam-guidance bad"><div class="steam-guidance-title">🔒 Профиль пока закрыт</div>'+
+          '<div class="steam-guidance-text">Это легко исправить. После открытия профиля мы сразу продолжим и подберём вам классную игру 🎮</div>'+
+          '<ul class="steam-guidance-list"><li>Steam → Профиль → Редактировать профиль</li><li>Раздел «Приватность»</li><li>Параметр «Мой профиль» → «Открытый»</li></ul></div>';
+      } else if(data.gamesClosed){
+        h+='<div class="steam-guidance bad"><div class="steam-guidance-title">🎯 Раздел с играми скрыт</div>'+
+          '<div class="steam-guidance-text">Чтобы исключить повторы, нужно открыть список игр. Это займёт меньше минуты, и рулетка станет намного приятнее ✨</div>'+
+          '<ul class="steam-guidance-list"><li>Steam → Профиль → Редактировать профиль</li><li>Раздел «Приватность»</li><li>«Доступ к игровой информации» → «Открытый»</li></ul></div>';
+      } else {
+        h+='<div class="steam-guidance bad"><div class="steam-guidance-title">⚠️ Не получилось проверить профиль</div><div class="steam-guidance-text">'+esc(data.error||'Проверьте ссылку и попробуйте ещё раз.')+'</div></div>';
+      }
+      if(data.steamName)h+=steamCardHtml(data.steamName,data.steamId,data.steamAvatar,null);
+      res.innerHTML=h;
+      setSteamButtonToCheck();
+      return;
+    }
+    uSteamUrl=url;uSteamId=data.steamId;uSteamName=data.steamName;uSteamAvatar=data.steamAvatar;ownedAppIds=data.ownedAppIds||[];
+    steamVerified=true;
+    res.innerHTML='<div class="steam-guidance good"><div class="steam-guidance-title">✅ Профиль успешно проверен</div><div class="steam-guidance-text">Отлично! Игр найдено: '+(data.gamesCount||0)+'. Нажмите «Продолжить», и выберем ваш регион перед запуском рулетки.</div></div>'+steamCardHtml(data.steamName,data.steamId,data.steamAvatar,data.gamesCount);
+    setSteamButtonToContinue();
+  }catch(e){
+    steamVerified=false;
+    res.innerHTML='<div class="steam-warn">Ошибка соединения</div>';
+    setSteamButtonToCheck();
+  }
+  finally{btn.disabled=false;}
+}
+
+function steamCardHtml(name,id,av,gc){
+  return '<div class="steam-card">'+(av?'<img src="'+esc(av)+'" alt="">':'')+
+  '<div><div class="sc-name">'+esc(name)+'</div><div class="sc-id">ID: '+esc(id||'—')+'</div>'+
+  (gc!==null?'<div class="sc-games">🎮 '+gc+' игр в библиотеке</div>':'')+'</div></div>';
+}
+
+function isMobileUserDevice(){
+  return /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent||'');
+}
+
+function getSteamHelpHtml(){
+  if (isMobileUserDevice()) {
+    return '<div class="steam-help">'+
+      '<h4>📱 В мобильном приложении Steam</h4>'+
+      '<ul>'+
+      '<li>Откройте приложение Steam на вашем устройстве.</li>'+
+      '<li>Нажмите на свою аватарку в правом верхнем углу.</li>'+
+      '<li>В меню выберите «Открыть профиль».</li>'+
+      '<li>На странице профиля нажмите кнопку ⋮ (три точки).</li>'+
+      '<li>Выберите «Поделиться» — ссылка скопируется автоматически.</li>'+
+      '</ul>'+
+      '<p>Ссылка может выглядеть так:</p>'+
+      '<p class="steam-link-example">https://steamcommunity.com/id/ВАШ_NICKNAME</p>'+
+      '<p class="steam-link-example">https://steamcommunity.com/profiles/12345678901234567</p>'+
+    '</div>';
+  }
+  return '<div class="steam-help">'+
+    '<h4>💻 В клиенте Steam на ПК</h4>'+
+    '<ul>'+
+    '<li>Откройте Steam и войдите в свой аккаунт.</li>'+
+    '<li>В верхней панели нажмите на своё имя (рядом с «Сообщество» или «Библиотека»).</li>'+
+    '<li>Откройте страницу своего профиля.</li>'+
+    '<li>Скопируйте ссылку из адресной строки (под меню «Магазин» и «Библиотека»).</li>'+
+    '</ul>'+
+    '<p>Ссылка может выглядеть так:</p>'+
+    '<p class="steam-link-example">https://steamcommunity.com/id/ВАШ_NICKNAME</p>'+
+    '<p class="steam-link-example">https://steamcommunity.com/profiles/12345678901234567</p>'+
+  '</div>';
+}
+
+function toggleSteamHelp(){
+  const el=document.getElementById('steam-help');
+  if(!el) return;
+  const isVisible=el.style.display!=='none';
+  if(isVisible){el.style.display='none';el.innerHTML='';return;}
+  el.innerHTML=getSteamHelpHtml();
+  el.style.display='block';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REGION
+   ═══════════════════════════════════════════════════════════════ */
+function buildRegionGrid(){
+  const g=document.getElementById('region-grid');
+  g.innerHTML=REGIONS.map(r=>{
+    const flagIcon=r.icon
+      ? '<img class="region-flag-img" src="'+r.icon+'" alt="'+r.flag+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\\'none\\';this.nextElementSibling.style.display=\\'inline\\';"><span class="region-flag" style="display:none">'+r.flag+'</span>'
+      : '<span class="region-flag">'+r.flag+'</span>';
+    return '<button class="region-btn" onclick="selectRegion(\\''+r.name+'\\',this)">'+flagIcon+'<span class="region-name">'+r.name+'</span></button>';
+  }).join('');
+}
+
+function selectRegion(name,el){
+  uCountry=name;
+  document.querySelectorAll('.region-btn').forEach(b=>b.classList.remove('selected'));
+  if(el)el.classList.add('selected');
+  setTimeout(()=>showStep('step-boost'),350);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOST
+   ═══════════════════════════════════════════════════════════════ */
+function selectBoost(b){wantBoost=b;if(b){saveFlow();handleBoostPay();}else goAnalysis();}
+
+async function handleBoostPay(){
+  if(paymentRedirectInProgress) return;
+  paymentRedirectInProgress=true;
+  showLoading(true);
+  try{
+    const resp=await fetch(API_BASE+'/api/create-boost-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const data=await resp.json();
+    if(data.ok&&data.payment_url){window.location.href=data.payment_url;return;}
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast(data.error||'Ошибка',true);
+  }catch(e){
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast('Ошибка',true);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANALYSIS — фейковые логи бота
+   ═══════════════════════════════════════════════════════════════ */
+function goAnalysis(){showStep('step-analysis');startAnalysis();}
+
+async function startAnalysis(){
+  const msgs=excludeDuplicates?ANALYSIS_MSGS_FULL:ANALYSIS_MSGS_SIMPLE;
+  const msgEl=document.getElementById('a-msg'),barEl=document.getElementById('a-bar'),logsEl=document.getElementById('a-logs');
+  barEl.style.width='0%';logsEl.innerHTML='';msgEl.textContent='Инициализация…';
+
+  const t=TIER_MAP[linkData?.tier]||TIER_MAP.starter;
+  const totalDur=msgs.reduce((a,m)=>a+m.d,0);
+  let elapsed=0;
+
+  for(let i=0;i<msgs.length;i++){
+    const m=msgs[i];
+    const text=m.t.replace('{games}',ownedAppIds.length||Math.floor(Math.random()*200+50))
+      .replace('{tier}',t.name).replace('{owned}',ownedAppIds.length||0);
+
+    msgEl.style.opacity='0';
+    await delay(150);
+    msgEl.textContent=text;
+    msgEl.style.opacity='1';
+
+    /* Add log line */
+    const logDiv=document.createElement('div');
+    logDiv.className='a-log';
+    logDiv.innerHTML=m.ok?'<span class="log-ok">'+text+'</span>':'<span class="log-info">'+text+'</span>';
+    logDiv.style.animationDelay=(i*0.05)+'s';
+    logsEl.appendChild(logDiv);
+    logsEl.scrollTop=logsEl.scrollHeight;
+
+    elapsed+=m.d;
+    barEl.style.width=((elapsed/totalDur)*100)+'%';
+    await delay(m.d);
+  }
+  barEl.style.width='100%';
+  await delay(400);
+  showStep('step-roulette');
+  startRoulette();
+}
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ═══════════════════════════════════════════════════════════════
+   ROULETTE — с картинками + звуком
+   ═══════════════════════════════════════════════════════════════ */
+function startRoulette(){
+  const tier=linkData?.tier||'starter';
+  const pool=ROULETTE_POOL[tier]||ROULETTE_POOL.starter;
+  const strip=document.getElementById('r-strip');
+  strip.innerHTML='';strip.classList.remove('animating');strip.style.transform='translateX(0)';
+
+  const totalItems=50;
+  const items=[];
+  /* Каждый ~5й элемент — сюрприз */
+  for(let i=0;i<totalItems;i++){
+    if(i%5===3){items.push({surprise:true});}
+    else{items.push(pool[i%pool.length]);}
+  }
+
+  items.forEach((item,idx)=>{
+    const div=document.createElement('div');
+    div.className='r-item';
+    div.dataset.idx=idx;
+    if(item.surprise){
+      div.classList.add('surprise');
+      div.innerHTML='<span class="surprise-icon">🎁</span><span class="surprise-text">Сюрприз!</span>';
+    }else{
+      const imgUrl='https://cdn.akamai.steamstatic.com/steam/apps/'+item.id+'/header.jpg';
+      div.innerHTML='<img src="'+imgUrl+'" alt="" loading="lazy" onerror="this.style.display=\'none\'"><div class="r-item-label">'+esc(item.n)+'</div>';
+    }
+    strip.appendChild(div);
+  });
+
+  /* Всегда останавливается на "Сюрприз" */
+  const surpriseIndices=items.map((it,i)=>it.surprise?i:-1).filter(i=>i>25&&i<40);
+  const winnerIdx=surpriseIndices.length?surpriseIndices[Math.floor(Math.random()*surpriseIndices.length)]:33;
+
+  const viewport=document.getElementById('r-viewport');
+  const firstItem=strip.querySelector('.r-item');
+  const gap=parseFloat(getComputedStyle(strip).gap || '10') || 10;
+  const itemW=(firstItem?.getBoundingClientRect().width || 190)+gap;
+  const vpCenter=viewport.offsetWidth/2;
+  const offset=(winnerIdx*itemW)+(itemW/2)-vpCenter;
+
+  /* Sound */
+  playRouletteSound();
+
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+    strip.classList.add('animating');
+    strip.style.transform='translateX(-'+offset+'px)';
+  });});
+
+  const onEnd=()=>{
+    strip.removeEventListener('transitionend',onEnd);
+    const w=strip.querySelector('[data-idx="'+winnerIdx+'"]');
+    if(w)w.classList.add('winner');
+    startConfetti();
+    setTimeout(()=>doSpin(),2500);
+  };
+  strip.addEventListener('transitionend',onEnd);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ROULETTE SOUND — Web Audio tick + accelerate
+   ═══════════════════════════════════════════════════════════════ */
+function playRouletteSound(){
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const now=audioCtx.currentTime;
+    /* ~60 ticks, starting fast, slowing down over 6s */
+    const totalTicks=65;
+    let t=0;
+    for(let i=0;i<totalTicks;i++){
+      const progress=i/totalTicks;
+      const interval=0.03+progress*progress*0.25; // accelerating gaps
+      t+=interval;
+      const osc=audioCtx.createOscillator();
+      const gain=audioCtx.createGain();
+      osc.type='sine';
+      osc.frequency.value=800+Math.random()*400;
+      gain.gain.setValueAtTime(0.08+progress*0.05,now+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,now+t+0.05);
+      osc.connect(gain);gain.connect(audioCtx.destination);
+      osc.start(now+t);osc.stop(now+t+0.06);
+    }
+    /* Final win chime */
+    [0,0.15,0.3].forEach((dt,i)=>{
+      const osc=audioCtx.createOscillator();
+      const gain=audioCtx.createGain();
+      osc.type='sine';
+      osc.frequency.value=[523,659,784][i]; // C5 E5 G5
+      gain.gain.setValueAtTime(0.15,now+t+0.3+dt);
+      gain.gain.exponentialRampToValueAtTime(0.001,now+t+0.3+dt+0.5);
+      osc.connect(gain);gain.connect(audioCtx.destination);
+      osc.start(now+t+0.3+dt);osc.stop(now+t+0.3+dt+0.6);
+    });
+  }catch(e){}
+}
+
+/* Init audio ctx on first touch */
+document.addEventListener('click',()=>{
+  if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+},{once:true});
+
+/* ═══════════════════════════════════════════════════════════════
+   SPIN
+   ═══════════════════════════════════════════════════════════════ */
+async function doSpin(){
+  try{
+    const body={code,steamProfileUrl:uSteamUrl||null,steamId:uSteamId||null,steamName:uSteamName||null,
+      steamAvatar:uSteamAvatar||null,country:uCountry||null,excludeDuplicates,
+      boosted:wantBoost||linkData?.boosted||false};
+    const resp=await fetch(API_BASE+'/api/spin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await resp.json();
+    if(!data.ok){
+      if(data.alreadySpun&&data.keyAssigned){renderResult();showStep('step-result');return;}
+      showError(data.error||'Ошибка');return;
+    }
+    clearFlow();showStep('step-waiting');startPolling();
+  }catch(e){showError('Ошибка соединения');}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WAITING
+   ═══════════════════════════════════════════════════════════════ */
+function startPolling(){stopPolling();pollStart=Date.now();updateTimer();checkStatus();pollInterval=setInterval(checkStatus,POLL_MS);}
+function stopPolling(){if(pollInterval){clearInterval(pollInterval);pollInterval=null;}}
+
+async function checkStatus(){
+  if(pollStart&&(Date.now()-pollStart>POLL_MAX)){stopPolling();document.getElementById('w-timer').textContent='Обновите страницу';return;}
+  updateTimer();
+  try{
+    const resp=await fetch(API_BASE+'/api/link/'+code);const data=await resp.json();if(!data.valid)return;
+    linkData=data;renderOldKey('old-key-area');
+    if(data.keyAssigned){stopPolling();renderResult();showStep('step-result');}
+  }catch(e){}
+}
+
+function updateTimer(){
+  if(!pollStart)return;
+  const s=Math.floor((Date.now()-pollStart)/1000);
+  const m=Math.floor(s/60);const sec=s%60;
+  const el=document.getElementById('w-timer');
+  if(el)el.textContent=m+':'+sec.toString().padStart(2,'0');
+}
+setInterval(updateTimer,1000);
+
+/* ═══════════════════════════════════════════════════════════════
+   RESULT
+   ═══════════════════════════════════════════════════════════════ */
+function renderResult(){
+  const d=linkData;if(!d)return;
+  const c=document.getElementById('result-content');
+  const t=TIER_MAP[d.tier]||TIER_MAP.starter;
+  renderOldKey('result-old-key');
+  const imgUrl=d.steamAppId?'https://cdn.akamai.steamstatic.com/steam/apps/'+d.steamAppId+'/header.jpg':'';
+  const revealed=d.keyRevealed;
+
+  let h='<div class="step-icon">🎉</div><h2 class="step-title" style="margin-bottom:4px">Ваша игра!</h2>'+
+  '<p class="result-tier">Уровень '+t.level+' — '+t.name+'</p>'+
+  (imgUrl?'<img class="result-img" src="'+imgUrl+'" alt="" onerror="this.style.display=\'none\'">':'')+
+  '<div class="result-name">'+esc(d.gameName||'Определяется...')+'</div>';
+
+  if(revealed){
+    h+='<div class="key-box"><div class="kl">Ваш ключ Steam</div><div class="kv">'+esc(d.gameKey||'—')+'</div>'+
+    '<button class="kcopy" onclick="copyKey(\''+esc(d.gameKey||'')+'\',this)">📋 Копировать</button></div>'+
+    '<p style="font-size:12px;color:var(--text-muted);margin-top:8px">Активируйте: Steam → Игры → Активировать продукт</p>';
+  }else{
+    h+='<div class="key-box"><div class="kl">Ключ Steam</div><div class="kh">🔒 Нажмите кнопку, чтобы открыть</div></div>'+
+    '<button class="btn btn-accent" onclick="revealKey()" style="margin-top:14px" id="reveal-btn">🔓 Открыть ключ</button>';
+    const tp=TIER_PRICES[d.tier]||TIER_PRICES.starter;
+    h+='<div class="respin-section"><div class="respin-title">Не понравилась? Перекрутите!</div><div class="respin-opts">'+
+    '<div class="respin-card" onclick="requestRespin(\'normal\')"><h4>🔄 Обычная</h4><p>Новый шанс из того же каталога</p><div class="rp">'+tp.respin+'₽</div></div>'+
+    '<div class="respin-card rc-premium" onclick="requestRespin(\'premium\')"><h4>💎 Premium</h4><p>Расширенный каталог топ-игр</p><div class="rp">'+tp.premium+'₽</div></div>'+
+    '</div><p class="respin-warn">⚠️ После открытия ключа перекрутка недоступна</p></div>';
+  }
+  if(d.respinCount>0)h+='<p style="font-size:12px;color:var(--text-muted);margin-top:14px">🔄 Перекруток: '+d.respinCount+'</p>';
+  c.innerHTML=h;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REVEAL & RESPIN
+   ═══════════════════════════════════════════════════════════════ */
+async function revealKey(){
+  const btn=document.getElementById('reveal-btn');if(btn){btn.disabled=true;btn.textContent='⏳…';}
+  try{
+    const resp=await fetch(API_BASE+'/api/reveal-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const data=await resp.json();
+    if(data.ok){const r2=await fetch(API_BASE+'/api/link/'+code);linkData=await r2.json();renderResult();showToast('Ключ открыт!');}
+    else{showToast(data.error||'Ошибка',true);if(btn){btn.disabled=false;btn.textContent='🔓 Открыть ключ';}}
+  }catch(e){showToast('Ошибка',true);if(btn){btn.disabled=false;btn.textContent='🔓 Открыть ключ';}}
+}
+
+async function requestRespin(type){
+  if(paymentRedirectInProgress) return;
+  paymentRedirectInProgress=true;
+  showLoading(true);
+  try{
+    const resp=await fetch(API_BASE+'/api/create-respin-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,type})});
+    const data=await resp.json();
+    if(data.ok&&data.payment_url){window.location.href=data.payment_url;return;}
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast(data.error||'Ошибка',true);
+  }catch(e){
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast('Ошибка',true);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   OLD KEY BANNER
+   ═══════════════════════════════════════════════════════════════ */
+function renderOldKey(id){
+  const el=document.getElementById(id);if(!el)return;
+  if(!linkData?.oldKeyNeedsPickup){el.innerHTML='';return;}
+  el.innerHTML='<div class="old-key-banner"><b>⚠️ Предыдущий ключ</b><p style="margin-top:4px;color:var(--text-muted)">Обратитесь в поддержку для получения старого ключа.</p></div>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ERROR & LOADING
+   ═══════════════════════════════════════════════════════════════ */
+function showError(msg,sub){showLoading(false);document.getElementById('e-text').textContent=msg||'Ошибка';document.getElementById('e-sub').textContent=sub||'Попробуйте позже';showStep('step-error');}
+function showLoading(s){document.getElementById('loading-ov').classList.toggle('visible',s);}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFETTI
+   ═══════════════════════════════════════════════════════════════ */
+function startConfetti(){
+  const canvas=document.getElementById('confetti');canvas.style.display='block';
+  const ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const colors=['#f44336','#2196F3','#FFEB3B','#4CAF50','#FF9800','#9C27B0','#E91E63','#00BCD4','#FF5722','#8BC34A'];
+  const ps=[];
+  for(let i=0;i<150;i++)ps.push({x:canvas.width/2+(Math.random()-.5)*400,y:canvas.height*.35,
+    vx:(Math.random()-.5)*20,vy:(Math.random()-.5)*20-10,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    w:Math.random()*12+4,h:Math.random()*7+3,rot:Math.random()*360,
+    rv:(Math.random()-.5)*14,gravity:.2+Math.random()*.1,opacity:1});
+  function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;
+    ps.forEach(p=>{p.x+=p.vx;p.vy+=p.gravity;p.y+=p.vy;p.rot+=p.rv;p.opacity-=.005;p.vx*=.99;
+      if(p.opacity>0&&p.y<canvas.height+80){alive=true;ctx.save();ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=Math.max(0,p.opacity);ctx.fillStyle=p.color;
+        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();}});
+    if(alive)requestAnimationFrame(anim);else canvas.style.display='none';
+  }
+  requestAnimationFrame(anim);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PARTICLES
+   ═══════════════════════════════════════════════════════════════ */
+function createParticles(){
+  const c=document.getElementById('particles');
+  const colors=['rgba(59,130,246,.3)','rgba(139,92,246,.25)','rgba(239,68,68,.2)','rgba(245,158,11,.2)','rgba(6,182,212,.25)'];
+  for(let i=0;i<30;i++){const p=document.createElement('div');p.className='particle';
+    const size=(Math.random()*5+2)+'px';
+    p.style.cssText='left:'+Math.random()*100+'%;width:'+size+';height:'+size+';background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(Math.random()*20+12)+'s;animation-delay:'+(Math.random()*15)+'s;';
+    c.appendChild(p);}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FLOW STATE
+   ═══════════════════════════════════════════════════════════════ */
+function saveFlow(){try{localStorage.setItem('flow_'+code,JSON.stringify({excludeDuplicates,steamUrl:uSteamUrl,steamId:uSteamId,steamName:uSteamName,steamAvatar:uSteamAvatar,country:uCountry,boosted:wantBoost}));}catch(e){}}
+function loadFlow(){try{const r=localStorage.getItem('flow_'+code);return r?JSON.parse(r):null;}catch(e){return null;}}
+function restoreFlow(s){if(!s)return;excludeDuplicates=s.excludeDuplicates||false;uSteamUrl=s.steamUrl||'';uSteamId=s.steamId||'';uSteamName=s.steamName||'';uSteamAvatar=s.steamAvatar||'';uCountry=s.country||'';wantBoost=s.boosted||false;}
+function clearFlow(){try{localStorage.removeItem('flow_'+code);}catch(e){}}
+function cleanUrl(){const u=new URL(window.location);u.search='';history.replaceState(history.state,'',u.pathname);}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST & UTILS
+   ═══════════════════════════════════════════════════════════════ */
+function showToast(msg,err=false){const el=document.getElementById('toast');el.textContent=msg;el.className=err?'error visible':'visible';clearTimeout(el._t);el._t=setTimeout(()=>{el.className='';},3500);}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function copyKey(text,btn){navigator.clipboard.writeText(text).then(()=>{if(btn){btn.textContent='✅ Скопировано!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('copied');},2000);}showToast('Ключ скопирован!');}).catch(()=>showToast('Ошибка',true));}
+</script>
+</body>
+</html>
