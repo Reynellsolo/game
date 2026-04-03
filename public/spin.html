@@ -238,6 +238,13 @@ body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59
 .region-flag{
   font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;
 }
+.region-flag-img{
+  width:22px;
+  height:22px;
+  display:block;
+  object-fit:contain;
+  border-radius:50%;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    BOOST
@@ -566,10 +573,15 @@ const TIER_PRICES={
 
 /* Регионы с флагами — расширенный список */
 const REGIONS=[
-  {flag:'🇷🇺',name:'Россия'},{flag:'🇧🇾',name:'Беларусь'},{flag:'🇰🇿',name:'Казахстан'},
-  {flag:'🇺🇦',name:'Украина'},{flag:'🇹🇷',name:'Турция'},{flag:'🇨🇳',name:'Китай'},
-  {flag:'🇺🇸',name:'США'},{flag:'🇪🇺',name:'Европа'},
-  {flag:'🌐',name:'Другой'}
+  {code:'ru',name:'Россия',flag:'🇷🇺',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1f7-1f1fa.svg'},
+  {code:'by',name:'Беларусь',flag:'🇧🇾',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1e7-1f1fe.svg'},
+  {code:'kz',name:'Казахстан',flag:'🇰🇿',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1f0-1f1ff.svg'},
+  {code:'ua',name:'Украина',flag:'🇺🇦',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1fa-1f1e6.svg'},
+  {code:'tr',name:'Турция',flag:'🇹🇷',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1f9-1f1f7.svg'},
+  {code:'cn',name:'Китай',flag:'🇨🇳',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1e8-1f1f3.svg'},
+  {code:'us',name:'США',flag:'🇺🇸',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1fa-1f1f8.svg'},
+  {code:'eu',name:'Европа',flag:'🇪🇺',icon:'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1ea-1f1fa.svg'},
+  {code:'other',name:'Другой',flag:'🌐',icon:''}
 ];
 
 /* Игры для визуала рулетки — с Steam App ID для картинок */
@@ -874,7 +886,12 @@ function toggleSteamHelp(){
    ═══════════════════════════════════════════════════════════════ */
 function buildRegionGrid(){
   const g=document.getElementById('region-grid');
-  g.innerHTML=REGIONS.map(r=>'<button class="region-btn" onclick="selectRegion(\''+r.name+'\',this)"><span class="region-flag">'+r.flag+'</span><span class="region-name">'+r.name+'</span></button>').join('');
+  g.innerHTML=REGIONS.map(r=>{
+    const flagIcon=r.icon
+      ? '<img class="region-flag-img" src="'+r.icon+'" alt="'+r.flag+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\\'none\\';this.nextElementSibling.style.display=\\'inline\\';"><span class="region-flag" style="display:none">'+r.flag+'</span>'
+      : '<span class="region-flag">'+r.flag+'</span>';
+    return '<button class="region-btn" onclick="selectRegion(\\''+r.name+'\\',this)">'+flagIcon+'<span class="region-name">'+r.name+'</span></button>';
+  }).join('');
 }
 
 function selectRegion(name,el){
