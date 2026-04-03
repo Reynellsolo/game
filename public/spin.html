@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>🎰 Game Roulette</title>
+<link rel="preconnect" href="https://lk.antilopay.com" crossorigin>
+<link rel="dns-prefetch" href="//lk.antilopay.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -233,6 +235,9 @@ body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59
   box-shadow:0 0 0 1px var(--accent)}
 .region-flag{font-size:22px;line-height:1}
 .region-name{font-size:14px}
+.region-flag{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    BOOST
@@ -628,6 +633,7 @@ let code='',linkData=null,excludeDuplicates=false;
 let uSteamUrl='',uSteamId='',uSteamName='',uSteamAvatar='',ownedAppIds=[];
 let uCountry='',wantBoost=false,currentStep='';
 let steamVerified=false;
+let paymentRedirectInProgress=false;
 let pollInterval=null,pollStart=null;
 const POLL_MS=15000,POLL_MAX=3600000;
 let audioCtx=null;
@@ -708,6 +714,10 @@ function showStep(id,hist=true){
   if(hist)history.pushState({step:id},'','');
 }
 window.addEventListener('popstate',e=>{if(e.state?.step)showStep(e.state.step,false);});
+window.addEventListener('pageshow',()=>{
+  paymentRedirectInProgress=false;
+  showLoading(false);
+});
 
 function updateProgress(){
   const c=document.getElementById('progress');
@@ -880,13 +890,21 @@ function selectRegion(name,el){
 function selectBoost(b){wantBoost=b;if(b){saveFlow();handleBoostPay();}else goAnalysis();}
 
 async function handleBoostPay(){
+  if(paymentRedirectInProgress) return;
+  paymentRedirectInProgress=true;
   showLoading(true);
   try{
     const resp=await fetch(API_BASE+'/api/create-boost-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
     const data=await resp.json();
-    if(data.ok&&data.payment_url)window.location.href=data.payment_url;
-    else{showLoading(false);showToast(data.error||'Ошибка',true);}
-  }catch(e){showLoading(false);showToast('Ошибка',true);}
+    if(data.ok&&data.payment_url){window.location.href=data.payment_url;return;}
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast(data.error||'Ошибка',true);
+  }catch(e){
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast('Ошибка',true);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1125,13 +1143,21 @@ async function revealKey(){
 }
 
 async function requestRespin(type){
+  if(paymentRedirectInProgress) return;
+  paymentRedirectInProgress=true;
   showLoading(true);
   try{
     const resp=await fetch(API_BASE+'/api/create-respin-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,type})});
     const data=await resp.json();
-    if(data.ok&&data.payment_url)window.location.href=data.payment_url;
-    else{showLoading(false);showToast(data.error||'Ошибка',true);}
-  }catch(e){showLoading(false);showToast('Ошибка',true);}
+    if(data.ok&&data.payment_url){window.location.href=data.payment_url;return;}
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast(data.error||'Ошибка',true);
+  }catch(e){
+    paymentRedirectInProgress=false;
+    showLoading(false);
+    showToast('Ошибка',true);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
