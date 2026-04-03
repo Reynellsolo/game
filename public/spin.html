@@ -193,6 +193,19 @@ body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59
 .steam-help ul{margin:8px 0 0 18px}
 .steam-help li{margin-bottom:6px}
 .steam-help .steam-link-example{font-family:'SF Mono',Consolas,monospace;font-size:12px;color:#cfd5ef;word-break:break-all}
+.steam-guidance{
+  margin:12px 0;
+  padding:14px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+}
+.steam-guidance.bad{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.08)}
+.steam-guidance.good{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.08)}
+.steam-guidance-title{font-size:14px;font-weight:800;margin-bottom:8px}
+.steam-guidance-text{font-size:13px;line-height:1.6;color:#e3e7f7}
+.steam-guidance-list{margin:8px 0 0 18px}
+.steam-guidance-list li{margin-bottom:6px}
 
 .steam-card{display:flex;align-items:center;gap:14px;padding:14px;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);margin:16px 0}
@@ -441,7 +454,7 @@ body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59
       <div id="steam-help" style="display:none"></div>
       <div id="steam-result"></div>
       <button class="btn btn-accent" id="steam-btn" onclick="checkSteam()">🔍 Проверить профиль</button>
-      <button class="btn btn-ghost" style="margin-top:10px" onclick="selectMode(false)">← Без проверки</button>
+      <button class="btn btn-ghost" style="margin-top:10px" onclick="goBackToMode()">← Назад</button>
     </div>
 
     <!-- REGION -->
@@ -550,9 +563,7 @@ const TIER_PRICES={
 const REGIONS=[
   {flag:'🇷🇺',name:'Россия'},{flag:'🇧🇾',name:'Беларусь'},{flag:'🇰🇿',name:'Казахстан'},
   {flag:'🇺🇦',name:'Украина'},{flag:'🇹🇷',name:'Турция'},{flag:'🇨🇳',name:'Китай'},
-  {flag:'🇪🇺',name:'Европа'},{flag:'🇺🇸',name:'США'},{flag:'🇬🇧',name:'Великобритания'},
-  {flag:'🇩🇪',name:'  ермания'},{flag:'🇫🇷',name:'Франция'},{flag:'🇯🇵',name:'Япония'},
-  {flag:'🇰🇷',name:'Корея'},{flag:'🇧🇷',name:'Бразилия'},{flag:'🇦🇷',name:'Аргентина'},
+  {flag:'🇺🇸',name:'США'},{flag:'🇪🇺',name:'Европа'},
   {flag:'🌐',name:'Другой'}
 ];
 
@@ -616,6 +627,7 @@ const ANALYSIS_MSGS_SIMPLE=[
 let code='',linkData=null,excludeDuplicates=false;
 let uSteamUrl='',uSteamId='',uSteamName='',uSteamAvatar='',ownedAppIds=[];
 let uCountry='',wantBoost=false,currentStep='';
+let steamVerified=false;
 let pollInterval=null,pollStart=null;
 const POLL_MS=15000,POLL_MAX=3600000;
 let audioCtx=null;
@@ -628,6 +640,7 @@ document.addEventListener('DOMContentLoaded',init);
 async function init(){
   createParticles();
   buildRegionGrid();
+  initSteamInputWatcher();
   code=extractCode();
   if(!code){showError('Ссылка не найдена');return;}
   const params=new URLSearchParams(window.location.search);
@@ -711,8 +724,48 @@ function updateProgress(){
    ═══════════════════════════════════════════════════════════════ */
 function selectMode(exclude){
   excludeDuplicates=exclude;
-  if(exclude){showStep('step-steam');setTimeout(()=>document.getElementById('steam-url')?.focus(),200);}
+  if(exclude){
+    steamVerified=false;
+    setSteamButtonToCheck();
+    showStep('step-steam');
+    setTimeout(()=>document.getElementById('steam-url')?.focus(),200);
+  }
   else{uSteamId='';uSteamName='';uSteamAvatar='';uSteamUrl='';ownedAppIds=[];showStep('step-region');}
+}
+
+function goBackToMode(){
+  showStep('step-mode');
+}
+
+function setSteamButtonToCheck(){
+  const btn=document.getElementById('steam-btn');
+  if(!btn) return;
+  btn.textContent='🔍 Проверить профиль';
+  btn.onclick=checkSteam;
+}
+
+function setSteamButtonToContinue(){
+  const btn=document.getElementById('steam-btn');
+  if(!btn) return;
+  btn.textContent='➡️ Продолжить';
+  btn.onclick=continueAfterSteam;
+}
+
+function initSteamInputWatcher(){
+  const input=document.getElementById('steam-url');
+  if(!input) return;
+  input.addEventListener('input',()=>{
+    steamVerified=false;
+    setSteamButtonToCheck();
+  });
+}
+
+function continueAfterSteam(){
+  if(!steamVerified){
+    showToast('Сначала проверьте профиль Steam', true);
+    return;
+  }
+  showStep('step-region');
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -727,15 +780,34 @@ async function checkSteam(){
     const resp=await fetch(API_BASE+'/api/check-steam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({steamUrl:url})});
     const data=await resp.json();
     if(!data.ok){
-      let h='<div class="steam-warn">'+esc(data.error)+'</div>';
+      steamVerified=false;
+      let h='';
+      if(data.profileClosed){
+        h+='<div class="steam-guidance bad"><div class="steam-guidance-title">🔒 Профиль пока закрыт</div>'+
+          '<div class="steam-guidance-text">Это легко исправить. После открытия профиля мы сразу продолжим и подберём вам классную игру 🎮</div>'+
+          '<ul class="steam-guidance-list"><li>Steam → Профиль → Редактировать профиль</li><li>Раздел «Приватность»</li><li>Параметр «Мой профиль» → «Открытый»</li></ul></div>';
+      } else if(data.gamesClosed){
+        h+='<div class="steam-guidance bad"><div class="steam-guidance-title">🎯 Раздел с играми скрыт</div>'+
+          '<div class="steam-guidance-text">Чтобы исключить повторы, нужно открыть список игр. Это займёт меньше минуты, и рулетка станет намного приятнее ✨</div>'+
+          '<ul class="steam-guidance-list"><li>Steam → Профиль → Редактировать профиль</li><li>Раздел «Приватность»</li><li>«Доступ к игровой информации» → «Открытый»</li></ul></div>';
+      } else {
+        h+='<div class="steam-guidance bad"><div class="steam-guidance-title">⚠️ Не получилось проверить профиль</div><div class="steam-guidance-text">'+esc(data.error||'Проверьте ссылку и попробуйте ещё раз.')+'</div></div>';
+      }
       if(data.steamName)h+=steamCardHtml(data.steamName,data.steamId,data.steamAvatar,null);
-      res.innerHTML=h;return;
+      res.innerHTML=h;
+      setSteamButtonToCheck();
+      return;
     }
     uSteamUrl=url;uSteamId=data.steamId;uSteamName=data.steamName;uSteamAvatar=data.steamAvatar;ownedAppIds=data.ownedAppIds||[];
-    res.innerHTML='<div class="steam-ok">✅ Профиль найден! Игр: '+(data.gamesCount||0)+'</div>'+steamCardHtml(data.steamName,data.steamId,data.steamAvatar,data.gamesCount);
-    setTimeout(()=>showStep('step-region'),1500);
-  }catch(e){res.innerHTML='<div class="steam-warn">Ошибка соединения</div>';}
-  finally{btn.disabled=false;btn.textContent='🔍 Проверить профиль';}
+    steamVerified=true;
+    res.innerHTML='<div class="steam-guidance good"><div class="steam-guidance-title">✅ Профиль успешно проверен</div><div class="steam-guidance-text">Отлично! Игр найдено: '+(data.gamesCount||0)+'. Нажмите «Продолжить», и выберем ваш регион перед запуском рулетки.</div></div>'+steamCardHtml(data.steamName,data.steamId,data.steamAvatar,data.gamesCount);
+    setSteamButtonToContinue();
+  }catch(e){
+    steamVerified=false;
+    res.innerHTML='<div class="steam-warn">Ошибка соединения</div>';
+    setSteamButtonToCheck();
+  }
+  finally{btn.disabled=false;}
 }
 
 function steamCardHtml(name,id,av,gc){
