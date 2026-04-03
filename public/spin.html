@@ -177,6 +177,22 @@ body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59
   font-size:14px;outline:none;transition:all .2s;font-family:var(--font)}
 .text-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
 .text-input::placeholder{color:var(--text-muted)}
+.steam-help-btn{margin-top:8px}
+.steam-help{
+  margin:12px 0 16px;
+  padding:14px;
+  border-radius:var(--radius);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  color:#d9ddef;
+  font-size:13px;
+  line-height:1.6;
+}
+.steam-help h4{font-size:14px;font-weight:800;margin-bottom:8px;color:#fff}
+.steam-help p{margin:8px 0}
+.steam-help ul{margin:8px 0 0 18px}
+.steam-help li{margin-bottom:6px}
+.steam-help .steam-link-example{font-family:'SF Mono',Consolas,monospace;font-size:12px;color:#cfd5ef;word-break:break-all}
 
 .steam-card{display:flex;align-items:center;gap:14px;padding:14px;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);margin:16px 0}
@@ -420,7 +436,9 @@ body.boosted-theme .tier-strip{background:linear-gradient(90deg,transparent,#f59
       <div class="input-group">
         <label>Ссылка на профиль</label>
         <input type="text" class="text-input" id="steam-url" placeholder="https://steamcommunity.com/id/..." autocomplete="off">
+        <button class="btn btn-ghost btn-sm steam-help-btn" type="button" onclick="toggleSteamHelp()">🔗 Как найти ссылку на профиль Steam</button>
       </div>
+      <div id="steam-help" style="display:none"></div>
       <div id="steam-result"></div>
       <button class="btn btn-accent" id="steam-btn" onclick="checkSteam()">🔍 Проверить профиль</button>
       <button class="btn btn-ghost" style="margin-top:10px" onclick="selectMode(false)">← Без проверки</button>
@@ -724,6 +742,49 @@ function steamCardHtml(name,id,av,gc){
   return '<div class="steam-card">'+(av?'<img src="'+esc(av)+'" alt="">':'')+
   '<div><div class="sc-name">'+esc(name)+'</div><div class="sc-id">ID: '+esc(id||'—')+'</div>'+
   (gc!==null?'<div class="sc-games">🎮 '+gc+' игр в библиотеке</div>':'')+'</div></div>';
+}
+
+function isMobileUserDevice(){
+  return /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent||'');
+}
+
+function getSteamHelpHtml(){
+  if (isMobileUserDevice()) {
+    return '<div class="steam-help">'+
+      '<h4>📱 В мобильном приложении Steam</h4>'+
+      '<ul>'+
+      '<li>Откройте приложение Steam на вашем устройстве.</li>'+
+      '<li>Нажмите на свою аватарку в правом верхнем углу.</li>'+
+      '<li>В меню выберите «Открыть профиль».</li>'+
+      '<li>На странице профиля нажмите кнопку ⋮ (три точки).</li>'+
+      '<li>Выберите «Поделиться» — ссылка скопируется автоматически.</li>'+
+      '</ul>'+
+      '<p>Ссылка может выглядеть так:</p>'+
+      '<p class="steam-link-example">https://steamcommunity.com/id/ВАШ_NICKNAME</p>'+
+      '<p class="steam-link-example">https://steamcommunity.com/profiles/12345678901234567</p>'+
+    '</div>';
+  }
+  return '<div class="steam-help">'+
+    '<h4>💻 В клиенте Steam на ПК</h4>'+
+    '<ul>'+
+    '<li>Откройте Steam и войдите в свой аккаунт.</li>'+
+    '<li>В верхней панели нажмите на своё имя (рядом с «Сообщество» или «Библиотека»).</li>'+
+    '<li>Откройте страницу своего профиля.</li>'+
+    '<li>Скопируйте ссылку из адресной строки (под меню «Магазин» и «Библиотека»).</li>'+
+    '</ul>'+
+    '<p>Ссылка может выглядеть так:</p>'+
+    '<p class="steam-link-example">https://steamcommunity.com/id/ВАШ_NICKNAME</p>'+
+    '<p class="steam-link-example">https://steamcommunity.com/profiles/12345678901234567</p>'+
+  '</div>';
+}
+
+function toggleSteamHelp(){
+  const el=document.getElementById('steam-help');
+  if(!el) return;
+  const isVisible=el.style.display!=='none';
+  if(isVisible){el.style.display='none';el.innerHTML='';return;}
+  el.innerHTML=getSteamHelpHtml();
+  el.style.display='block';
 }
 
 /* ═══════════════════════════════════════════════════════════════
